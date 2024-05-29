@@ -2,54 +2,49 @@
   <img alt="CometChat" src="https://assets.cometchat.io/website/images/logos/banner.png">
 </p>
 
+# React Native Enhanced Push Notifications (Beta) Sample App
 
-# React Native Push Notification Sample App
 
-CometChat Push Notification Sample App is a fully functional push notification app capable of one-on-one (private) and group messaging, and Calling. This sample app enables users to send and receive push notifications for text and multimedia messages like **images, videos, documents** and **Custom Messages**. Also, users can make push notifications for Audio and Video calls to other users or groups.
+The CometChat React Native [Enhanced Push Notifications (Beta)](https://www.cometchat.com/docs-beta/notifications/push-overview) Sample App is capable of handling push notifications for one-on-one (private), group messaging, and even call notifications. This sample app enables users to send and receive text messages, make and receive calls, and effectively displays push notifications for these interactions.
 
-<hr>
+
+In our sample app:
+- Firebase Cloud Messaging (FCM) is used for displaying push notifications in Android  
+- Apple Push Notification (APN) is used for displaying push notifications in iOS.
+
+> [!NOTE]
+> If you are using Push Notifications (Extension), please refer to our [React Native Push Notifications (Extension)](https://github.com/cometchat/cometchat-push-notification-app-react-native/tree/v4-push-notifications-extension) Sample app for guidance.
 
 ## Pre-requisite
-1. Login to the <a href="https://app.cometchat.io/" target="_blank">CometChat Dashboard</a>.
+1. Login to the [CometChat Dashboard](https://app.cometchat.com/).
 2. Select an existing app or create a new one.
-3. Go to "API & Auth Keys" section and copy the `REST API` key from the "REST API Keys" tab.
-4. Go to the "Extensions" section and Enable the Push Notifications extension.
-5. Go to the "Installed" tab in the same section and open the settings for this extension and Set the version to `V2`.
-6. Paste the `REST API Key` in the Settings.
-7. Go to <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a> and get the Server Key for your app. Paste the Server Key in the settings and click on save.
-8. Copy your app's `APP_ID`, `REGION` and `AUTH_KEY` from the Dashboard. These will be required in the next steps.
+3. Click on the Notifications section from the menu on the left.
+4. Enable Push Notifications by clicking on the toggle bar and configure the push notifications.
+5. Add credentials for FCM or APNs.
 
-## Run the Sample App in Android
+## Run the Sample App
+1. Clone this repository.
+2. Run the following commands:
+```
+npm i -f
+cd ios
+pod install
+cd ..
+```
+3. If you're using Firebase Cloud Messaging (FCM), place the `google-services.json` & `GoogleService-Info.plist` files in the correct location as per FCM's documentation.
+4. Add your app credentials like `APP_ID`, `REGION`, and `AUTH_KEY` in the `src/CONSTS.ts` file along with the Provider IDs that you want to use for registering tokens.
+5. Run the sample app
+```
+npm run android # To run the Android app
+npm run ios # To run the iOS app
+```
+6. Once the app is running on your device or emulator, login with a user.(The iOS app has to be run on a device. The Android app can run on emulator or device.)
+7. Allow the permission to display push notifications.
+8. Put the app in the background or terminate it.
+9. Send a message or call to the logged in user from another device.
+10. You should see a push notification for a message and call notification for a call.
+11. Tap on the notification to open the Sample app for message.
+12. Tap on accept/decline on call notification to initiate or decline call.
 
- To Run the sample push notifications app, do the following changes:
-
-   You can Obtain your  *google-services.json* from [Firebase Console](https://console.firebase.google.com/)
-
-   - Open the project in Android Studio.
-   
-   - Add `google-services.json` in **app** directory
-
-   - Build and run the Sample App `react-native run-android`.
-
-## IOS Installation 
-  
-  To Run the sample push notifications app, do the following changes:
-  
-  For FCM you can obtain your  *GoogleServices.plist* from [Firebase Console](https://console.firebase.google.com/)
-  
-  - Open the project in Xcode and navigate to select your push notification configuration:
-      - APNS + Callkit (Recommended)
-      - Firebase
-        
-  - Create certificates for your bundle ID as mentioned in our [documentation](https://prodocs.cometchat.com/docs/ios-extensions-enhanced-push-notification).
-    
-  - Build and run the Sample App `react-native run-ios`.
-  
-## Note
-   - CometChat provides two ways to implement push notifications for your IOS app. 
-      - [Firebase](https://prodocs.cometchat.com/docs/ios-extensions-enhanced-push-notification)
-      - [APNS (Supports Callkit)](https://prodocs.cometchat.com/docs/ios-extensions-enhanced-push-notification-apns)
-      
 ## Help and Support
-For issues running the project or integrating with our UI Kits, consult our [documentation](https://www.cometchat.com/docs/extensions/react-native-push-notifications) or create a [support ticket](https://help.cometchat.com/hc/en-us) or seek real-time support via the [CometChat Dashboard](https://app.cometchat.com/).
-
+For issues running the project or integrating with our UI Kits, consult our [documentation](https://www.cometchat.com/docs-beta/notifications/push-overview) or create a [support ticket](https://help.cometchat.com/hc/en-us) or seek real-time support via the [CometChat Dashboard](https://app.cometchat.com/).

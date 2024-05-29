@@ -8,5 +8,6 @@ import Ironman from "./ironman.png";
 import Captainamerica from "./captainamerica.png";
 //@ts-ignore
 import Spiderman from "./spiderman.png";
+import LogOut from "./logout.png";
 
-export { AppLogo, Ironman, Captainamerica, Spiderman, Wolverine };
+export { AppLogo, Ironman, Captainamerica, Spiderman, Wolverine, LogOut };

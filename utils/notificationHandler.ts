@@ -123,8 +123,8 @@ export class NotificationHandler {
     NotificationHandler.callerId = generateUUID();
     RNCallKeep.displayIncomingCall(
       NotificationHandler.callerId,
-      NotificationHandler.msg?.sender?.name,
-      NotificationHandler.msg?.sender?.name,
+      NotificationHandler.msg?.senderName,
+      NotificationHandler.msg?.senderName,
       "generic"
     );
   };
@@ -183,7 +183,7 @@ export class NotificationHandler {
   static endCall = async (callerId?: any) => {
     if (
       NotificationHandler.msg &&
-      NotificationHandler.msg?.category === "call"
+      NotificationHandler.msg?.type === "call"
     ) {
       _BackgroundTimer.start();
       let sessionID = NotificationHandler.msg?.sessionId;
@@ -217,8 +217,8 @@ export class NotificationHandler {
   static setupEventListeners() {
     if (Platform.OS == "ios") {
       notifee.onForegroundEvent(({ type, detail }) => {
-        if (type === EventType.PRESS) {
-          let msg: any = detail.notification?.data?.message;
+        if (type === EventType.PRESS || type === EventType.ACTION_PRESS) {
+          let msg: any = detail.notification?.data;
           if (msg) {
             let dataObj = {
               conversationId: msg.conversationId,
@@ -242,14 +242,12 @@ export class NotificationHandler {
       VoipPushNotification.addEventListener(
         "notification",
         (notification: any) => {
-          let msg: any = CometChat.CometChatHelper.processMessage(
-            notification.message
-          );
+          let msg = notification
           NotificationHandler.msg = msg;
           if (
             NotificationHandler.callerId &&
-            (msg?.data?.action === "cancelled" ||
-              msg?.data?.action === "unanswered")
+            (msg?.callAction === "cancelled" ||
+              msg?.callAction === "unanswered")
           ) {
             RNCallKeep.reportEndCallWithUUID(NotificationHandler.callerId, 6);
           }
@@ -258,7 +256,7 @@ export class NotificationHandler {
     } else {
       notifee.onBackgroundEvent(async ({ type, detail }) => {
         const { notification } = detail;
-        if (type === EventType.PRESS) {
+        if (type === EventType.PRESS || type === EventType.ACTION_PRESS) {
           await notifee.cancelNotification(notification?.id as string);
           RNCallKeep.backToForeground();
           navigate({

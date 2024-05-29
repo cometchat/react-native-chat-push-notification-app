@@ -25,64 +25,61 @@
 
 // --- Handle incoming pushes
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(PKPushType)type withCompletionHandler:(void (^)(void))completion {
+  NSLog(@"didReceiveIncomingPushWithPayload with payload: %@", payload.dictionaryPayload);
+
+  // Extract call action, type, sender and receiver info from the payload
+  NSString *callAction = [payload.dictionaryPayload objectForKey:@"callAction"];
+  NSString *callType = [payload.dictionaryPayload objectForKey:@"callType"];
+  NSString *sender = [payload.dictionaryPayload objectForKey:@"sender"];
+  NSString *senderName = [payload.dictionaryPayload objectForKey:@"senderName"];
   
-  // Parse the 'message' dictionary
-  NSDictionary *messageDictionary = [payload.dictionaryPayload objectForKey:@"message"];
-  // Parse the 'data' dictionary
-  NSDictionary *dataDictionary = [messageDictionary objectForKey:@"data"];
-  // Get the value of 'action'
-  NSString *actionValue = [dataDictionary objectForKey:@"action"];
-
   // uuid for the call
-  NSString *uuid =[[[NSUUID UUID] UUIDString] lowercaseString];
-
+  NSString *uuid = [[NSUUID UUID] UUIDString];
+  
   // Process the received push
   [RNVoipPushNotificationManager didReceiveIncomingPushWithPayload:payload forType:(NSString *)type];
-
-  if ([actionValue isEqualToString:@"initiated"]) {
-      NSLog(@"Action is initiated.");
-
-      // Retrieve information from your voip push payload
-      NSDictionary *content = [payload.dictionaryPayload valueForKey:@"aps"];
-      NSDictionary *sender = [content valueForKey:@"alert"];
+  
+  // Determine the action to take based on callAction value
+  if ([callAction isEqualToString:@"initiated"]) {
+      NSLog(@"Call is initiated by %@", senderName);
       
-      NSString *callerName=[sender valueForKey:@"title"];
-      NSString *handle = [sender valueForKey:@"title"];
-
+      BOOL hasVideo = [callType isEqualToString:@"video"]; // Determine if the call is audio or video
+      
+      // Report the incoming call to CallKit
       [RNCallKeep reportNewIncomingCall: uuid
-                                  handle: handle
-                              handleType: @"generic"
-                                hasVideo: NO
-                     localizedCallerName: callerName
-                         supportsHolding: YES
-                            supportsDTMF: YES
-                        supportsGrouping: YES
-                      supportsUngrouping: YES
-                             fromPushKit: YES
-                                 payload: nil
-                   withCompletionHandler: completion];
-
-  } else if ([actionValue isEqualToString:@"unanswered"]) {
+                                 handle: sender
+                             handleType: @"generic"
+                               hasVideo: hasVideo
+                    localizedCallerName: senderName
+                        supportsHolding: YES
+                           supportsDTMF: YES
+                       supportsGrouping: YES
+                     supportsUngrouping: YES
+                            fromPushKit: YES
+                                payload: payload.dictionaryPayload
+                  withCompletionHandler: completion];
+      
+  } else if ([callAction isEqualToString:@"unanswered"]) {
       // Your code for handling 'unanswered' action
       NSLog(@"Action is unanswered.");
       [RNCallKeep endCallWithUUID:uuid reason:3];
     
-  } else if ([actionValue isEqualToString:@"rejected"]) {
+  } else if ([callAction isEqualToString:@"rejected"]) {
       // Your code for handling 'rejected' action
       NSLog(@"Action is rejected.");
       [RNCallKeep endCallWithUUID:uuid reason:6];
     
-  } else if ([actionValue isEqualToString:@"busy"]){
+  } else if ([callAction isEqualToString:@"busy"]){
       // Unknown action, handle accordingly
       NSLog(@"Action is rejected.");
       [RNCallKeep endCallWithUUID:uuid reason:1];
     
-  } else if ([actionValue isEqualToString:@"cancelled"]){
+  } else if ([callAction isEqualToString:@"cancelled"]){
       // Unknown action, handle accordingly
       NSLog(@"Action is cancelled.");
       [RNCallKeep endCallWithUUID:uuid reason:6];
   
-  } else if ([actionValue isEqualToString:@"ended"]){
+  } else if ([callAction isEqualToString:@"ended"]){
       // Unknown action, handle accordingly
       NSLog(@"Action is ended.");
       [RNCallKeep endCallWithUUID:uuid reason:2];

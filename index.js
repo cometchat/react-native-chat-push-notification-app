@@ -9,7 +9,7 @@ import {CometChat} from '@cometchat/chat-sdk-react-native';
 import messaging from '@react-native-firebase/messaging';
 import {TokenRegisterHandler} from './utils/tokenRegisterHandler';
 import {NotificationHandler} from './utils/notificationHandler';
-import {navigationRef} from './src/StackNavigator';
+import {navigate} from './src/StackNavigator';
 import {AndroidStyle} from '@notifee/react-native';
 import {SCREENS_CONSTANTS} from './src/CONSTS';
 import {CometChatUIKit} from '@cometchat/chat-uikit-react-native';
@@ -17,7 +17,7 @@ import {COMETCHAT_CONSTANTS} from './src/CONSTS';
 
 new TokenRegisterHandler();
 new NotificationHandler();
-
+let messageIds = [];
 CometChatUIKit.init({
   appId: COMETCHAT_CONSTANTS.APP_ID,
   authKey: COMETCHAT_CONSTANTS.AUTH_KEY,
@@ -37,138 +37,37 @@ messaging().onMessage(async message => {
   handleMessages(message);
 });
 messaging().setBackgroundMessageHandler(async remoteMessage => {
-  console.log('Message handled in the background!');
+  console.log('Message handled in the background!', remoteMessage);
   handleMessages(remoteMessage, true);
 });
 handleMessages = (firebaseMessage, inbackground = false) => {
   try {
-    let msg = CometChat.CometChatHelper.processMessage(
-      JSON.parse(firebaseMessage?.data?.message),
-    );
+    let msg = firebaseMessage.data
 
-    if (msg.category == 'message' && inbackground) {
-      switch (msg.type) {
-        case 'text':
-          NotificationHandler.displayNotification({
-            id: msg.muid,
-            title: msg.sender.name,
-            body: msg.text,
-            data: {
-              conversationId: msg.conversationId,
-              senderUid: msg.sender.uid,
-              receiverType: msg.receiverType,
-              guid: msg.receiverId,
-            },
-            android: {largeIcon: msg.sender.avatar},
-          });
-          CometChat.markAsDelivered(msg);
-          break;
-        case 'image':
-          NotificationHandler.displayNotification({
-            id: msg.muid,
-            title: msg.sender.name,
-            body: 'Sent an image',
-            data: {
-              conversationId: msg.conversationId,
-              senderUid: msg.sender.uid,
-              receiverType: msg.receiverType,
-              guid: msg.receiverId,
-            },
-            android: {
-              style: {
-                type: AndroidStyle.BIGPICTURE,
-                picture: msg?.data?.attachments
-                  ? msg.data.attachments[0]['url']
-                  : '',
-              },
-
-              largeIcon: msg.sender.avatar,
-            },
-          });
-          CometChat.markAsDelivered(msg);
-          break;
-        case 'video':
-          NotificationHandler.displayNotification({
-            id: msg.muid,
-            title: msg.sender.name,
-            body: 'Sent a video',
-            data: {
-              conversationId: msg.conversationId,
-              senderUid: msg.sender.uid,
-              receiverType: msg.receiverType,
-              guid: msg.receiverId,
-            },
-            android: {
-              style: {
-                type: AndroidStyle.BIGPICTURE,
-                picture: msg?.data?.attachments
-                  ? msg.data.attachments[0]['url']
-                  : '',
-              },
-
-              largeIcon: msg.sender.avatar,
-            },
-          });
-          CometChat.markAsDelivered(msg);
-          break;
-        case 'file':
-          NotificationHandler.displayNotification({
-            id: msg.muid,
-            title: msg.sender.name,
-            body: 'Sent a file',
-            data: {
-              conversationId: msg.conversationId,
-              senderUid: msg.sender.uid,
-              receiverType: msg.receiverType,
-              guid: msg.receiverId,
-            },
-            android: {
-              largeIcon: msg.sender.avatar,
-            },
-          });
-          CometChat.markAsDelivered(msg);
-          break;
-        case 'audio':
-          NotificationHandler.displayNotification({
-            id: msg.muid,
-            title: msg.sender.name,
-            body: 'Sent an audio file',
-            data: {
-              conversationId: msg.conversationId,
-              senderUid: msg.sender.uid,
-              receiverType: msg.receiverType,
-              guid: msg.receiverId,
-            },
-            android: {
-              largeIcon: msg.sender.avatar,
-            },
-          });
-          CometChat.markAsDelivered(msg);
-          break;
-        case 'media':
-          NotificationHandler.displayNotification({
-            id: msg.muid,
-            title: msg.sender.name,
-            body: 'Sent a file',
-            data: {
-              conversationId: msg.conversationId,
-              senderUid: msg.sender.uid,
-              receiverType: msg.receiverType,
-              guid: msg.receiverId,
-            },
-            android: {
-              largeIcon: msg.sender.avatar,
-            },
-          });
-          CometChat.markAsDelivered(msg);
-          break;
-
-        default:
-          break;
+    if (((msg.type == 'chat' && inbackground) || messageIds.filter(item => item === msg.tag).length)) {
+      NotificationHandler.displayNotification({
+        id: msg.tag,
+        title: msg.title, 
+        body: msg.body,
+        data: {
+          conversationId: msg.conversationId,
+          senderUid: msg.sender,
+          receiverType: msg.receiverType,
+          guid: msg.receiver,
+          receiver: msg.receiver
+        },
+        android: {largeIcon: msg.senderAvatar},
+      });
+      CometChat.markAsDelivered(msg);
+      if(messageIds.length >= 10) {
+        messageIds.splice(0, 1)
+        messageIds.push(msg.tag);
+      } else {
+        messageIds.push(msg.tag);
       }
     }
-    if (msg.category == 'call') {
-      switch (msg.action) {
+    if (msg.type == 'call') {
+      switch (msg.callAction) {
         case 'initiated':
           NotificationHandler.msg = msg;
           NotificationHandler.displayCallAndroid();
@@ -191,7 +90,7 @@ handleMessages = (firebaseMessage, inbackground = false) => {
           break;
         case 'ongoing':
           NotificationHandler.displayNotification({
-            title: msg?.callReceiver?.name || '',
+            title: msg?.receiverName || '',
             body: 'ongoing call',
           });
           navigate({

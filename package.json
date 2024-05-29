@@ -10,12 +10,12 @@
     "test": "jest"
   },
   "dependencies": {
-    "@cometchat/calls-sdk-react-native": "^4.0.4",
-    "@cometchat/chat-sdk-react-native": "^4.0.5",
-    "@cometchat/chat-uikit-react-native": "^4.1.0",
+    "@cometchat/calls-sdk-react-native": "^4.0.7",
+    "@cometchat/chat-sdk-react-native": "^4.0.7",
+    "@cometchat/chat-uikit-react-native": "^4.3.8",
     "@notifee/react-native": "^7.8.0",
     "@react-native-async-storage/async-storage": "^1.18.2",
-    "@react-native-community/clipboard": "^1.5.1",
+    "@react-native-clipboard/clipboard": "^1.13.1",
     "@react-native-community/netinfo": "7.1.7",
     "@react-native-firebase/app": "^18.0.0",
     "@react-native-firebase/messaging": "^18.0.0",

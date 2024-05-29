@@ -1,7 +1,8 @@
-import { CometChat } from "@cometchat/chat-sdk-react-native";
+import { CometChat, CometChatNotifications } from "@cometchat/chat-sdk-react-native";
 import { Platform } from "react-native";
 import messaging from "@react-native-firebase/messaging";
 import VoipPushNotification from "react-native-voip-push-notification";
+import { COMETCHAT_CONSTANTS } from "../src/CONSTS";
 export class TokenRegisterHandler {
   static FCMToken: string;
   static VOIPToken: string;
@@ -60,7 +61,9 @@ export class TokenRegisterHandler {
           TokenRegisterHandler.registerTokenToCometChat();
         } else {
           if (!messaging().isDeviceRegisteredForRemoteMessages)
-            await messaging().registerDeviceForRemoteMessages();
+            await messaging().registerDeviceForRemoteMessages().then(async (res)=>{
+              let APNSToken = await messaging().getAPNSToken();
+          });
           if (TokenRegisterHandler.isUsingAPNS) {
             VoipPushNotification.registerVoipToken();
 
@@ -87,29 +90,39 @@ export class TokenRegisterHandler {
     try {
       if (Platform.OS == "android") {
         if (TokenRegisterHandler.FCMToken) {
-          let response = await CometChat.registerTokenForPushNotification(
-            TokenRegisterHandler.FCMToken
+          let response = await CometChatNotifications.registerPushToken(
+            TokenRegisterHandler.FCMToken,
+            CometChatNotifications.PushPlatforms.FCM_REACT_NATIVE_ANDROID,
+            COMETCHAT_CONSTANTS.FCM_PROVIDER_ID
           );
+          console.log('TokenRegisterHandler.FCMToken',TokenRegisterHandler.FCMToken, response);
         }
       } else {
         if (TokenRegisterHandler.FCMToken) {
-          let response = await CometChat.registerTokenForPushNotification(
-            TokenRegisterHandler.FCMToken
+          
+          let response = await CometChatNotifications.registerPushToken(
+            TokenRegisterHandler.FCMToken,
+            CometChatNotifications.PushPlatforms.FCM_REACT_NATIVE_IOS,
+            COMETCHAT_CONSTANTS.FCM_PROVIDER_ID
           );
         }
         if (TokenRegisterHandler.isUsingAPNS) {
           if (TokenRegisterHandler.VOIPToken) {
-            let response = await CometChat.registerTokenForPushNotification(
+            let response = await CometChatNotifications.registerPushToken(
               TokenRegisterHandler.VOIPToken,
-              { voip: true }
-            );
-          }
+              CometChatNotifications.PushPlatforms.APNS_REACT_NATIVE_VOIP,
+              COMETCHAT_CONSTANTS.APNS_PROVIDER_ID
+          );
+            console.log('TokenRegisterHandler.VOIPToken',TokenRegisterHandler.VOIPToken, response);
+        }
           if (TokenRegisterHandler.APNSToken) {
-            let response = await CometChat.registerTokenForPushNotification(
+            let response = await CometChatNotifications.registerPushToken(
               TokenRegisterHandler.APNSToken,
-              { voip: false }
+              CometChatNotifications.PushPlatforms.APNS_REACT_NATIVE_DEVICE,
+              COMETCHAT_CONSTANTS.APNS_PROVIDER_ID
             );
-          }
+            console.log('TokenRegisterHandler.APNSToken',TokenRegisterHandler.APNSToken, response);
+        }
         }
       }
     } catch (error) {}
