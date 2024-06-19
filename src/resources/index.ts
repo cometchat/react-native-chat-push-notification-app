@@ -9,5 +9,6 @@ import Captainamerica from "./captainamerica.png";
 //@ts-ignore
 import Spiderman from "./spiderman.png";
 import LogOut from "./logout.png";
+import Cyclops from "./cyclops.png";
 
-export { AppLogo, Ironman, Captainamerica, Spiderman, Wolverine, LogOut };
+export { AppLogo, Ironman, Captainamerica, Spiderman, Wolverine, LogOut, Cyclops };

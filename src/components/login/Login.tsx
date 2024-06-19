@@ -22,12 +22,36 @@ import {
   CometChatUIKit,
 } from "@cometchat/chat-uikit-react-native";
 import { AppStyle } from "../../AppStyle";
+import {users} from '../../../utils/usersList';
+
 import { SCREENS_CONSTANTS } from "../../CONSTS";
 
 export const Login = ({ navigation }: any) => {
   const [isLoginInPregress, setLoginInProgress] = React.useState(false);
+  const [usersList, setUsersList] = React.useState<any>([]);
 
   const { theme } = useContext(CometChatContext);
+
+  React.useEffect(() => {
+    fetch("https://assets.cometchat.io/sampleapp/sampledata.json")
+      .then((response) => {
+        console.log(response.status);
+        if (response.status === 200) return response.json();
+        else {
+          setUsersList(users);
+          return {};
+        }
+      })
+      .then((res: any) => {
+        if (res.users)
+          setUsersList(() =>
+            res.users.map((item: any) => ({
+              ...item,
+              avatar: { uri: item.avatar },
+            }))
+          );
+      });
+  }, []);
 
   React.useEffect(() => {
     CometChatUIKit.getLoggedInUser()
@@ -112,44 +136,19 @@ export const Login = ({ navigation }: any) => {
           Login with one of our sample users
         </Text>
 
-        <View
-          style={{ flexDirection: "row", alignSelf: "center", marginTop: 8 }}
-        >
-          <RoudedButton
-            style={Style.LoginButton}
-            onPress={() => makeLogin("superhero1")}
-          >
-            <Image style={Style.ButtonImage} source={Ironman} />
-            <Text style={Style.ButtonText}> SUPERHERO 1</Text>
-          </RoudedButton>
-
-          <RoudedButton
-            style={Style.LoginButton}
-            onPress={() => makeLogin("superhero2")}
-          >
-            <Image style={Style.ButtonImage} source={Captainamerica} />
-            <Text style={Style.ButtonText}> SUPERHERO 2</Text>
-          </RoudedButton>
+        <View style={{ flexDirection: 'row', justifyContent: "space-between", marginVertical: 15, flexWrap: "wrap" }}>
+            { Boolean(usersList.length) &&
+                usersList.map((user:any) =>{
+                    return (
+                        <RoudedButton style={Style.LoginButton} onPress={() => makeLogin(user.uid)}>
+                            <Image style={Style.ButtonImage} source={user.avatar} />
+                            <Text style={Style.ButtonText}>{user.name}</Text>
+                        </RoudedButton>
+                    )
+                })
+            }
         </View>
-        <View
-          style={{ flexDirection: "row", alignSelf: "center", marginBottom: 8 }}
-        >
-          <RoudedButton
-            style={Style.LoginButton}
-            onPress={() => makeLogin("superhero3")}
-          >
-            <Image style={Style.ButtonImage} source={Spiderman} />
-            <Text style={Style.ButtonText}> SUPERHERO 3</Text>
-          </RoudedButton>
 
-          <RoudedButton
-            style={Style.LoginButton}
-            onPress={() => makeLogin("superhero4")}
-          >
-            <Image style={Style.ButtonImage} source={Wolverine} />
-            <Text style={Style.ButtonText}> SUPERHERO 4</Text>
-          </RoudedButton>
-        </View>
 
         <Text>or else login countinue with</Text>
 
