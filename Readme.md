@@ -2,22 +2,19 @@
   <img alt="CometChat" src="https://assets.cometchat.io/website/images/logos/banner.png">
 </p>
 
-
 # React Native Push Notification Sample App
 
 CometChat Push Notification Sample App is a fully functional push notification app capable of one-on-one (private) and group messaging, and Calling. This sample app enables users to send and receive push notifications for text and multimedia messages like **images, videos, documents** and **Custom Messages**. Also, users can make push notifications for Audio and Video calls to other users or groups.
 
-<hr>
+> [!NOTE]
+> If you wish to try Enhanced Push Notifications, please refer to our [React Native Enhanced Push Notifications (Beta)](https://github.com/cometchat/cometchat-push-notification-app-react-native/tree/v4-enhanced-push-notification) sample app.
 
 ## Pre-requisite
+
 1. Login to the <a href="https://app.cometchat.io/" target="_blank">CometChat Dashboard</a>.
 2. Select an existing app or create a new one.
-3. Go to "API & Auth Keys" section and copy the `REST API` key from the "REST API Keys" tab.
-4. Go to the "Extensions" section and Enable the Push Notifications extension.
-5. Go to the "Installed" tab in the same section and open the settings for this extension and Set the version to `V2`.
-6. Paste the `REST API Key` in the Settings.
-7. Go to <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a> and get the Server Key for your app. Paste the Server Key in the settings and click on save.
-8. Copy your app's `APP_ID`, `REGION` and `AUTH_KEY` from the Dashboard. These will be required in the next steps.
+3. Under the Extensions section, enable Push Notifications.
+4. Configure Push Notifications by saving the required FCM credentials.
 
 ## Run the Sample App in Android
 
